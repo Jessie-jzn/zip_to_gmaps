@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "邮编地图标注工具",
+  "version": "1.0",
+  "description": "在谷歌地图上标注澳大利亚邮编",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://www.google.com/maps/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "images/icon.svg"
+  },
+  "icons": {
+    "128": "images/icon.svg"
+  }
+}
