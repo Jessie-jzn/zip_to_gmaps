@@ -159,7 +159,10 @@ function markPostcodes(postcodeStr) {
 
       // 检查是否有搜索结果
       const results = document.querySelectorAll('div[role="article"]');
+      console.log("搜索结果数量:", results.length);
+
       if (results.length > 0) {
+        console.log("找到搜索结果");
         return true;
       }
 
@@ -167,14 +170,26 @@ function markPostcodes(postcodeStr) {
       const mainContent = document.querySelector('div[role="main"]');
       if (mainContent) {
         const text = mainContent.textContent;
+        console.log("主内容区域文本:", text);
         if (text.includes("未找到结果") || text.includes("No results found")) {
+          console.log("明确提示未找到结果");
           return false;
         }
       }
 
       // 如果没有明确的"未找到结果"提示，再等待一下看是否有结果出现
+      console.log("等待额外时间检查结果...");
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const resultsAfterWait = document.querySelectorAll('div[role="article"]');
+      console.log("额外等待后的搜索结果数量:", resultsAfterWait.length);
+
+      // 如果没有找到结果，但也没有明确的"未找到结果"提示，再检查一下是否有其他类型的结果
+      if (resultsAfterWait.length === 0) {
+        const anyResults = document.querySelectorAll('div[role="button"]');
+        console.log("其他类型的结果数量:", anyResults.length);
+        return anyResults.length > 0;
+      }
+
       return resultsAfterWait.length > 0;
     } catch (error) {
       console.error("检查搜索结果失败:", error);
@@ -203,22 +218,32 @@ function markPostcodes(postcodeStr) {
 
       // 检查是否有"已保存"按钮
       const saveButton = document.querySelector(
-        'button[aria-label="保存"], button[aria-label="Save"]'
+        'button[aria-label="已保存"], button[aria-label="Saved"]'
       );
+
+      // 如果按钮显示"已保存"，说明已经保存过了
+      if (saveButton && saveButton.textContent.includes("已保存")) {
+        console.log(`邮编 ${postcode} 已经标注过，跳过`);
+        return true;
+      }
+
+      // 如果按钮显示"保存"，则检查是否已经保存到目标列表
       if (saveButton) {
         // 点击保存按钮查看是否已保存
         saveButton.click();
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         // 检查是否已经保存到目标列表
-        const checkboxes = document.querySelectorAll('div[role="checkbox"]');
-        for (const checkbox of checkboxes) {
-          const label = checkbox.getAttribute("aria-label");
+        const listItems = document.querySelectorAll(
+          'div[role="menuitemradio"]'
+        );
+        for (const item of listItems) {
+          const label = item.querySelector(".mLuXec")?.textContent;
           if (label && label.includes("🦘澳洲whv集签点")) {
-            if (checkbox.getAttribute("aria-checked") === "true") {
+            if (item.getAttribute("aria-checked") === "true") {
               // 如果已保存，关闭对话框
               const doneButton = await waitForElement(
-                'button[aria-label="完成"], button[aria-label="Done"]'
+                'button[aria-label="已保存"], button[aria-label="Done"]'
               );
               doneButton.click();
               return true;
@@ -229,7 +254,7 @@ function markPostcodes(postcodeStr) {
 
         // 如果未保存到目标列表，关闭对话框
         const doneButton = await waitForElement(
-          'button[aria-label="完成"], button[aria-label="Done"]'
+          'button[aria-label="已保存"], button[aria-label="Done"]'
         );
         doneButton.click();
       }
@@ -251,19 +276,6 @@ function markPostcodes(postcodeStr) {
         return true;
       }
 
-      // 获取搜索框
-      const searchBox = await waitForElement('input[name="q"]');
-
-      // 输入搜索内容
-      searchBox.value = `邮政编码: ${postcode}, Australia`;
-      searchBox.dispatchEvent(new Event("input", { bubbles: true }));
-
-      // 点击搜索按钮
-      const searchButton = await waitForElement(
-        'button[aria-label="搜索"], button[aria-label="Search"]'
-      );
-      searchButton.click();
-
       // 检查是否找到结果
       const hasResults = await checkSearchResults();
       if (!hasResults) {
@@ -276,7 +288,7 @@ function markPostcodes(postcodeStr) {
       firstResult.click();
 
       // 等待位置信息加载
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // 保存到目标列表
       await saveToTargetList();
@@ -319,7 +331,7 @@ function markPostcodes(postcodeStr) {
       if (alreadySaved) {
         // 如果已经保存，直接点击"完成"按钮
         const doneButton = await waitForElement(
-          'button[aria-label="完成"], button[aria-label="Done"]'
+          'button[aria-label="已保存"], button[aria-label="Done"]'
         );
         doneButton.click();
         return true;
@@ -332,7 +344,7 @@ function markPostcodes(postcodeStr) {
 
       // 点击"完成"按钮
       const doneButton = await waitForElement(
-        'button[aria-label="完成"], button[aria-label="Done"]'
+        'button[aria-label="已保存"], button[aria-label="Done"]'
       );
       doneButton.click();
 
@@ -359,7 +371,7 @@ function markPostcodes(postcodeStr) {
         notFoundPostcodes.push(postcode);
       }
       // 等待一下再处理下一个邮编
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // 如果有未找到的邮编，显示在控制台
