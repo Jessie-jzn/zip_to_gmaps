@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>WHV Postcode Marker</title>
+  <style>
+    body {
+      width: 640px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 22px;
+      color: #202124;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      background-color: #fff;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+
+    input[type="text"] {
+      height: 40px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 18px;
+      background-color: #4285f4;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #3367d6;
+    }
+
+    .hint {
+      margin-top: 20px;
+      font-size: 13px;
+      background-color: #fff8e1;
+      color: #8a6d3b;
+      padding: 10px 12px;
+      border-left: 4px solid #f0ad4e;
+      border-radius: 6px;
+    }
+
+    .status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #5f6368;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+    
+    select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+    }
+    
+    .list-container {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .custom-list-container {
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">WHV Postcode Marker</h1>
+
+  <div class="custom-list-container">
+    <label for="customListName" id="customListLabel">Custom List Name:</label>
+    <input type="text" id="customListName" value="🦘澳洲WHV农场/肉场/建筑类集签列表" placeholder="🦘澳洲WHV农场/肉场/建筑类集签列表"/>
+  </div>
+
+  <label for="postcodes" id="label">Enter Australian postcodes</label>
+  <textarea id="postcodes" placeholder="e.g. 2356, 2386, 2396, 2832 to 2836, 2899"></textarea>
+
+  <div class="list-container" id="listContainer">
+    <label for="listSelect" id="listSelectLabel">Available Lists:</label>
+    <select id="listSelect"></select>
+  </div>
+
+  <button id="markButton">📍 Mark on Map</button>
+
+  <div class="hint" id="hint">
+    ⚠️ Please make sure you have created a Google Maps list with the name specified above.
+  </div>
+  <div id="copyableListName" style="display: flex; align-items: center; gap: 6px; border: 1px solid #ccc; padding: 4px 8px;">
+    <span id="listNameText">🦘澳洲WHV农场/肉场/建筑类集签列表</span>
+    <button id="copyIcon" title="点击复制" style="border: none; background: transparent; cursor: pointer;">📋</button>
+  </div>
+  <div id="status" class="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

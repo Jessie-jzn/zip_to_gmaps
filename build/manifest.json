@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "WHV Postcode Marker",
+  "version": "1.0",
+  "description": "Australian working holiday visa postcode marker for Google Maps / 澳大利亚打工度假签证邮编地图工具",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["https://www.google.com/maps/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "images/icon_128.png"
+  },
+  "icons": {
+    "128": "images/icon_128.png",
+    "48": "images/icon_48.png",
+    "16": "images/icon_16.png"
+  }
+}

@@ -1,4 +1,0 @@
-geopy==2.4.1
-folium==0.15.1
-urllib3==2.2.1
-Pillow==10.2.0
