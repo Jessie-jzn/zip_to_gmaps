@@ -4,36 +4,42 @@
   <meta charset="UTF-8" />
   <title>WHV Postcode Marker</title>
   <style>
-    body {
-      width: 640px;
-      padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: #f5f7fa;
-      color: #333;
+    * {
       box-sizing: border-box;
     }
 
+    body {
+      width: 640px;
+      margin: 0 auto;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #1f2937;
+    }
+
     h1 {
-      margin: 0 0 12px;
-      font-size: 22px;
-      color: #202124;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #111827;
     }
 
     label {
       display: block;
-      margin: 16px 0 6px;
-      font-weight: 600;
+      margin: 18px 0 6px;
       font-size: 14px;
+      font-weight: 500;
+      color: #374151;
     }
 
-    textarea, input[type="text"] {
+    textarea, input[type="text"], select {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
       background-color: #fff;
+      transition: border-color 0.2s ease;
     }
 
     textarea {
@@ -42,64 +48,80 @@
     }
 
     input[type="text"] {
-      height: 40px;
+      height: 44px;
+    }
+
+    textarea:focus, input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: #60a5fa;
     }
 
     button {
       width: 100%;
-      padding: 12px;
-      margin-top: 18px;
-      background-color: #4285f4;
+      padding: 14px;
+      margin-top: 24px;
+      background-color: #3b82f6;
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 15px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: background-color 0.2s ease;
     }
 
     button:hover {
-      background-color: #3367d6;
+      background-color: #2563eb;
     }
 
     .hint {
       margin-top: 20px;
       font-size: 13px;
-      background-color: #fff8e1;
-      color: #8a6d3b;
-      padding: 10px 12px;
-      border-left: 4px solid #f0ad4e;
-      border-radius: 6px;
+      background-color: #fffbea;
+      color: #92400e;
+      padding: 12px 16px;
+      border-left: 4px solid #facc15;
+      border-radius: 8px;
     }
 
     .status {
-      margin-top: 14px;
+      margin-top: 16px;
       font-size: 13px;
-      color: #5f6368;
+      color: #6b7280;
     }
 
-    strong {
-      font-weight: 600;
-    }
-    
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 8px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background-color: #fff;
-    }
-    
     .list-container {
-      margin-top: 15px;
+      margin-top: 18px;
       display: none;
     }
 
     .custom-list-container {
-      margin: 15px 0;
+      margin-top: 12px;
+    }
+
+    #copyableListName {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background-color: #f3f4f6;
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    #copyIcon {
+      cursor: pointer;
+      font-size: 16px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    #copyIcon:hover {
+      opacity: 1;
     }
   </style>
 </head>
@@ -114,20 +136,15 @@
   <label for="postcodes" id="label">Enter Australian postcodes</label>
   <textarea id="postcodes" placeholder="e.g. 2356, 2386, 2396, 2832 to 2836, 2899"></textarea>
 
-  <div class="list-container" id="listContainer">
-    <label for="listSelect" id="listSelectLabel">Available Lists:</label>
-    <select id="listSelect"></select>
-  </div>
-
   <button id="markButton">📍 Mark on Map</button>
-
+  <div id="copyableListName">
+    <span id="listNameText">🦘澳洲WHV农场/肉场/建筑类集签列表</span>
+    <div id="copyIcon" title="点击复制">📋</div>
+  </div>
   <div class="hint" id="hint">
     ⚠️ Please make sure you have created a Google Maps list with the name specified above.
   </div>
-  <div id="copyableListName" style="display: flex; align-items: center; gap: 6px; border: 1px solid #ccc; padding: 4px 8px;">
-    <span id="listNameText">🦘澳洲WHV农场/肉场/建筑类集签列表</span>
-    <button id="copyIcon" title="点击复制" style="border: none; background: transparent; cursor: pointer;">📋</button>
-  </div>
+
   <div id="status" class="status"></div>
 
   <script src="popup.js"></script>

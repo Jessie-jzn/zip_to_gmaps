@@ -8,7 +8,13 @@ const i18n = {
     title: "WHV邮编地图助手",
     label: '请输入澳大利亚邮编（支持顿号、逗号及范围，例如"2832至2836"）：',
     button: "📍 标注到地图",
-    hint: "⚠️ 请确保已在 Google 地图中创建上方指定名称的列表",
+    hintHtml: `
+    ⚠️ 请确保已在 Google 地图中创建上方指定名称的列表。
+    <p>📌 使用前请在 <strong>Google 地图</strong> 中手动创建一个保存列表（如“🦘澳洲WHV集签列表”）</p>
+    <p>① 打开 Google 地图 → 菜单 → 已保存 → 列表 → 新建列表</p>
+    <p>② 创建完成后，请将该列表名称填写在上方输入框中</p>
+    <p>③ 然后输入要标记的澳洲邮编，点击下方按钮即可批量加入地图标记</p>
+  `,
     placeholder: "例如：2356、2386、2396、2832至2836、2899",
     inputPlaceholder: "请输入邮编",
     customListLabel: "自定义列表名称：",
@@ -27,7 +33,6 @@ const i18n = {
     postcodeMarked: "已标注邮编: %s",
     postcodeMarkFailed: "标注邮编 %s 失败:",
     postcodePlaceholder: "邮政编码: %s, Australia",
-    listSelectLabel: "可用的列表:",
     copyIcon: "📋 点击复制",
     copied: "已复制到剪贴板!",
   },
@@ -36,7 +41,13 @@ const i18n = {
     label:
       'Enter Australian postcodes (supports comma, Chinese list comma and range, e.g. "2832 to 2836"):',
     button: "📍 Mark on Map",
-    hint: "⚠️ Please make sure you have created a Google Maps list with the name specified above",
+    hintHtml: `
+    ⚠️ Please make sure you have created a Google Maps list with the name specified above.
+    <p>📌 Before using, please manually create a list in <strong>Google Maps</strong> (e.g., "🦘WHV Jobs List").</p>
+    <p>① Open Google Maps → Menu → Saved → Lists → New List</p>
+    <p>② After creating it, enter the list name into the input box above.</p>
+    <p>③ Then input the Australian postcodes and click the button below to mark them in bulk.</p>
+  `,
     placeholder: "e.g. 2356, 2386, 2396, 2832 to 2836, 2899",
     inputPlaceholder: "Please enter postcodes",
     customListLabel: "Custom List Name:",
@@ -55,7 +66,6 @@ const i18n = {
     postcodeMarked: "Marked postcode: %s",
     postcodeMarkFailed: "Failed to mark postcode %s:",
     postcodePlaceholder: "Postcode: %s, Australia",
-    listSelectLabel: "Available Lists:",
     copied: "Copied to clipboard!",
     copyIcon: "📋 Click to copy",
   },
@@ -71,7 +81,7 @@ async function getCustomListName() {
 
 // 保存自定义列表名称到本地存储
 async function saveCustomListName(name) {
-  await chrome.storage.local.set({ customListName: name });
+  await chrome.storage?.local?.set({ customListName: name });
 }
 
 // 页面加载完成后初始化界面和列表
@@ -81,10 +91,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("title").textContent = langPack.title;
     document.getElementById("label").textContent = langPack.label;
     document.getElementById("markButton").textContent = langPack.button;
-    document.getElementById("hint").textContent = langPack.hint;
+    document.getElementById("hint").innerHTML = langPack.hintHtml;
     document.getElementById("postcodes").placeholder = langPack.placeholder;
-    document.getElementById("listSelectLabel").textContent =
-      langPack.listSelectLabel;
+
     document.getElementById("customListLabel").textContent =
       langPack.customListLabel;
     document.getElementById("copyIcon").textContent = langPack.copyIcon;
@@ -117,6 +126,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const copyIcon = document.getElementById("copyIcon");
     copyIcon.addEventListener("click", async () => {
+      console.log("点击了复制按钮");
       try {
         const listName = document.getElementById("customListName").value;
         await navigator.clipboard.writeText(listName);
@@ -136,65 +146,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     // 添加鼠标悬停样式
     copyableElement.style.cursor = "pointer";
-
-    // 检查并初始化地图集合
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    if (tab.url.includes("google.com/maps")) {
-      await loadUserLists(tab.id);
-    }
   } catch (error) {
     console.error(langPack.initFailed, error);
   }
 });
-
-// 加载保存地点列表
-async function loadUserLists(tabId) {
-  try {
-    const result = await chrome.scripting.executeScript({
-      target: { tabId },
-      function: extractUserLists,
-    });
-
-    const lists = result[0].result || [];
-    const select = document.getElementById("listSelect");
-    const listContainer = document.getElementById("listContainer");
-
-    if (!select) {
-      console.error("listSelect element not found");
-      return;
-    }
-
-    select.innerHTML = "";
-
-    if (lists.length > 0) {
-      // 显示列表容器
-      if (listContainer) {
-        listContainer.style.display = "block";
-      }
-
-      lists.forEach(({ name }) => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
-      });
-    } else {
-      const option = document.createElement("option");
-      option.textContent = langPack.noListsFound;
-      option.disabled = true;
-      select.appendChild(option);
-    }
-  } catch (error) {
-    console.error(langPack.loadFailed, error);
-    const status = document.getElementById("status");
-    if (status) {
-      status.textContent = langPack.loadFailed + " " + error.message;
-    }
-  }
-}
 
 // 获取用户保存的列表（在页面上下文中执行）
 function extractUserLists() {
