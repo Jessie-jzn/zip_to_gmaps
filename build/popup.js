@@ -144,8 +144,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert(`${langPack.errorPrefix} ${err.message || err}`);
       }
     });
-    // 添加鼠标悬停样式
-    copyableElement.style.cursor = "pointer";
   } catch (error) {
     console.error(langPack.initFailed, error);
   }
