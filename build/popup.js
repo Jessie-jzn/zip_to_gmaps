@@ -1,5 +1,6 @@
-// 获取当前语言
+// 获取浏览器当前语言设置，优先使用 navigator.language，否则使用兼容旧浏览器的 userLanguage
 const lang = navigator.language || navigator.userLanguage;
+// 判断是否为中文用户，后续用于语言包选择
 const isChinese = lang.startsWith("zh");
 
 // 语言包
@@ -70,24 +71,36 @@ const i18n = {
     copyIcon: "📋 Click to copy",
   },
 };
-
+// 根据当前语言设置选择语言包
 const langPack = isChinese ? i18n.zh : i18n.en;
 
+/**
+ * 异步函数：从浏览器的本地存储（Chrome extension 提供的 API）中获取自定义列表名称
+ * 本地存储的 key 是 'customListName'
+ * 如果用户从未设置过，就返回默认值 langPack.defaultListName
+ */
 // 从本地存储获取自定义列表名称
 async function getCustomListName() {
   const result = (await chrome.storage?.local?.get("customListName")) || {};
   return result.customListName || langPack.defaultListName;
 }
 
-// 保存自定义列表名称到本地存储
+/**
+ * 异步函数：将用户输入的列表名称保存到浏览器本地存储中
+ * 保存点就是 'customListName' 这个 key
+ * chrome.storage.local.set 方法会把数据存储在用户本地的浏览器中
+ */
 async function saveCustomListName(name) {
   await chrome.storage?.local?.set({ customListName: name });
 }
 
-// 页面加载完成后初始化界面和列表
+/**
+ * 页面加载完成后，进行初始化操作
+ * 设置语言、占位提示文本、默认值、绑定事件等
+ */
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    // 设置页面元素的文本内容
+    // 设置 HTML 元素的文本内容，使用对应语言包
     document.getElementById("title").textContent = langPack.title;
     document.getElementById("label").textContent = langPack.label;
     document.getElementById("markButton").textContent = langPack.button;
@@ -98,13 +111,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       langPack.customListLabel;
     document.getElementById("copyIcon").textContent = langPack.copyIcon;
 
-    // 初始化自定义列表名称输入框
+    // 获取输入框 DOM 元素
     const customListInput = document.getElementById("customListName");
+    // 从本地存储读取保存的列表名称，并赋值给输入框
     customListInput.value = await getCustomListName();
 
     console.log("customListInput.value", customListInput.value);
 
-    // 初始化可复制的列表名称显示
+    // 同时更新复制按钮旁边显示的名称（用于复制）
     document
       .getElementById("copyableListName")
       .querySelector("span:first-child").textContent = customListInput.value;
@@ -112,7 +126,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 监听输入变化并保存
     customListInput.addEventListener("input", (e) => {
       saveCustomListName(e.target.value);
-      // Update the displayed list name in the copyable element
       document
         .getElementById("copyableListName")
         .querySelector("span:first-child").textContent = e.target.value;
@@ -123,13 +136,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 设置页面标题
     document.title = langPack.title;
-
+    // 点击复制按钮，复制列表名称到剪贴板
     const copyIcon = document.getElementById("copyIcon");
     copyIcon.addEventListener("click", async () => {
       console.log("点击了复制按钮");
       try {
         const listName = document.getElementById("customListName").value;
-        await navigator.clipboard.writeText(listName);
+        await navigator.clipboard.writeText(listName); // 使用浏览器 API 复制文本
 
         const originalText = copyIcon.textContent;
         copyIcon.textContent = langPack.copied;
@@ -282,10 +295,10 @@ function markPostcodes(input, lang, targetListName) {
         return;
       }
 
-      if (saveBtn.textContent.includes("已保存")) {
-        console.log(lang.postcodeAlreadySaved.replace("%s", postcode));
-        return;
-      }
+      // if (saveBtn.textContent.includes("已保存")) {
+      //   console.log(lang.postcodeAlreadySaved.replace("%s", postcode));
+      //   return;
+      // }
 
       saveBtn.click();
       await new Promise((r) => setTimeout(r, 1500));
