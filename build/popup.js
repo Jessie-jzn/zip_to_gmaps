@@ -11,7 +11,7 @@ const i18n = {
     button: "📍 标注到地图",
     hintHtml: `
     ⚠️ 请确保已在 Google 地图中创建上方指定名称的列表。
-    <p>📌 使用前请在 <strong>Google 地图</strong> 中手动创建一个保存列表（如“🦘澳洲WHV集签列表”）</p>
+    <p>📌 使用前请在 <strong>Google 地图</strong> 中手动创建一个保存列表（如"🦘澳洲WHV集签列表"）</p>
     <p>① 打开 Google 地图 → 菜单 → 已保存 → 列表 → 新建列表</p>
     <p>② 创建完成后，请将该列表名称填写在上方输入框中</p>
     <p>③ 然后输入要标记的澳洲邮编，点击下方按钮即可批量加入地图标记</p>
@@ -124,11 +124,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       .querySelector("span:first-child").textContent = customListInput.value;
 
     // 监听输入变化并保存
-    customListInput.addEventListener("input", (e) => {
-      saveCustomListName(e.target.value);
+    customListInput.addEventListener("input", async (e) => {
+      const newListName = e.target.value;
+      // 保存到本地存储
+      await saveCustomListName(newListName);
+      // 更新复制按钮旁边显示的名称
       document
         .getElementById("copyableListName")
-        .querySelector("span:first-child").textContent = e.target.value;
+        .querySelector("span:first-child").textContent = newListName;
+      // 更新当前使用的列表名称
+      window.currentListName = newListName;
     });
 
     // 设置页面语言
@@ -192,6 +197,8 @@ document.getElementById("markButton").addEventListener("click", async () => {
 
   if (!postcodeInput) {
     status.textContent = langPack.inputPlaceholder;
+    status.className = "status error";
+    status.style.display = "block";
     return;
   }
 
@@ -202,14 +209,19 @@ document.getElementById("markButton").addEventListener("click", async () => {
     });
     const url = tab.url || "";
 
-    if (!url.includes("google.com/maps")) {
+    if (!url.includes("google.com") || !url.includes("/maps")) {
       status.textContent = langPack.useOnMapsError;
+      status.className = "status error";
+      status.style.display = "block";
       return;
     }
 
     status.textContent = langPack.processingStatus;
+    status.className = "status processing";
+    status.style.display = "block";
 
-    const customListName = await getCustomListName();
+    // 使用最新的列表名称
+    const customListName = document.getElementById("customListName").value;
 
     // Create a serializable copy of only the language strings we need
     const contentLang = {
@@ -228,9 +240,20 @@ document.getElementById("markButton").addEventListener("click", async () => {
     });
 
     status.textContent = langPack.completeStatus;
+    status.className = "status complete";
+    status.style.display = "block";
+
+    // 3秒后隐藏状态消息
+    setTimeout(() => {
+      status.textContent = "";
+      status.className = "status";
+      status.style.display = "none";
+    }, 3000);
   } catch (error) {
     console.error(langPack.markFailed, error);
     status.textContent = langPack.errorPrefix + error.message;
+    status.className = "status error";
+    status.style.display = "block";
   }
 });
 
